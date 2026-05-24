@@ -161,7 +161,7 @@ No writes:
 - [x] Run protocol tests.
 - [x] Run Python compile check for custom component.
 - [x] Run Home Assistant 2025.6 import smoke test for integration modules.
-- [ ] Run `hacs/action` and `hassfest` via GitHub Actions after push.
+- [x] Run `hacs/action` and `hassfest` via GitHub Actions after push.
 - [ ] Install via HACS custom repository in Home Assistant.
 - [ ] Add integration through UI config flow.
 - [ ] Test connection through local Bluetooth adapter.
