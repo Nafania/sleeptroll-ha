@@ -60,13 +60,12 @@
         "name": "Light sensitivity"
       }
     },
+    "switch": {
+      "rocking": {
+        "name": "Rocking"
+      }
+    },
     "button": {
-      "start_rocking": {
-        "name": "Start rocking"
-      },
-      "pause_rocking": {
-        "name": "Pause rocking"
-      },
       "sync_state": {
         "name": "Sync state"
       },

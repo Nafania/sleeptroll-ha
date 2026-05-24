@@ -16,6 +16,7 @@ DEFAULT_NAME = "Sleepytroll"
 CONF_MANUAL_ADDRESS = "manual_address"
 
 PLATFORMS = [
+    Platform.SWITCH,
     Platform.SELECT,
     Platform.NUMBER,
     Platform.BUTTON,

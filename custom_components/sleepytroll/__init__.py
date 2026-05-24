@@ -87,8 +87,9 @@ def _async_remove_deprecated_entities(hass: HomeAssistant, address: str) -> None
     """Remove entities replaced by clearer controls."""
     entity_registry = er.async_get(hass)
     for platform, key in (
-        (Platform.SWITCH, "rocking"),
         (Platform.BUTTON, "acknowledge"),
+        (Platform.BUTTON, "start_rocking"),
+        (Platform.BUTTON, "pause_rocking"),
     ):
         entity_id = entity_registry.async_get_entity_id(
             platform,

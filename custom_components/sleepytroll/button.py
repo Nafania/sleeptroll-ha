@@ -15,7 +15,7 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from .coordinator import SleepytrollCoordinator
 from .entity import SleepytrollEntity
-from .protocol import command_acknowledge, command_play, command_reset
+from .protocol import command_acknowledge, command_reset
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -30,18 +30,6 @@ class SleepytrollButtonDescription(ButtonEntityDescription):
 
 
 BUTTON_DESCRIPTIONS: Final = (
-    SleepytrollButtonDescription(
-        key="start_rocking",
-        translation_key="start_rocking",
-        icon="mdi:play",
-        command_builder=lambda: command_play(True),
-    ),
-    SleepytrollButtonDescription(
-        key="pause_rocking",
-        translation_key="pause_rocking",
-        icon="mdi:pause",
-        command_builder=lambda: command_play(False),
-    ),
     SleepytrollButtonDescription(
         key="sync_state",
         translation_key="sync_state",

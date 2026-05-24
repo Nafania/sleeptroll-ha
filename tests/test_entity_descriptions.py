@@ -39,7 +39,7 @@ def test_platform_descriptions_extend_home_assistant_description(
     )
 
 
-def test_sleepytroll_uses_buttons_for_rocking_not_switch_platform() -> None:
+def test_sleepytroll_uses_switch_for_rocking() -> None:
     tree = ast.parse((INTEGRATION_PATH / "const.py").read_text())
     platforms = next(
         node
@@ -57,11 +57,11 @@ def test_sleepytroll_uses_buttons_for_rocking_not_switch_platform() -> None:
         if isinstance(elt, ast.Attribute) and isinstance(elt.value, ast.Name)
     }
 
-    assert "SWITCH" not in platform_names
+    assert "SWITCH" in platform_names
     assert "BUTTON" in platform_names
 
 
-def test_rocking_buttons_replace_raw_acknowledge_control() -> None:
+def test_buttons_expose_sync_and_reset_only() -> None:
     tree = ast.parse((INTEGRATION_PATH / "button.py").read_text())
     keys = {
         keyword.value.value
@@ -72,5 +72,19 @@ def test_rocking_buttons_replace_raw_acknowledge_control() -> None:
         if keyword.arg == "key" and isinstance(keyword.value, ast.Constant)
     }
 
-    assert {"start_rocking", "pause_rocking", "sync_state", "reset"} <= keys
+    assert {"sync_state", "reset"} <= keys
+    assert "start_rocking" not in keys
+    assert "pause_rocking" not in keys
     assert "acknowledge" not in keys
+
+
+def test_rocking_switch_keeps_local_state_until_ble_status_arrives() -> None:
+    source = (INTEGRATION_PATH / "switch.py").read_text()
+
+    assert "self._is_on = False" in source
+    assert "return self._is_on" in source
+    assert "status in {1, 2}" in source
+    assert "status in {0, 3}" in source
+    assert "self._is_on = True" in source
+    assert "self._is_on = False" in source
+    assert "self.async_write_ha_state()" in source

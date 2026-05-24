@@ -39,22 +39,45 @@ class SleepytrollRockingSwitch(SleepytrollEntity, SwitchEntity):
     def __init__(self, coordinator: SleepytrollCoordinator) -> None:
         """Initialize the switch."""
         super().__init__(coordinator, "rocking", "rocking")
+        self._is_on = False
 
     @property
-    def is_on(self) -> bool | None:
+    def is_on(self) -> bool:
         """Return whether rocking is active."""
         status = getattr(self.coordinator.data, "rocking_status", None)
         if status is None:
-            return None
+            return self._is_on
         if isinstance(status, str):
             normalized = status.lower()
-            if normalized in {"on", "rocking", "running", "active", "start", "started"}:
-                return True
-            if normalized in {"off", "paused", "stopped", "idle", "pause"}:
-                return False
+            if normalized in {
+                "on",
+                "rocking",
+                "running",
+                "active",
+                "start",
+                "started",
+                "listening",
+            }:
+                self._is_on = True
+                return self._is_on
+            if normalized in {
+                "off",
+                "paused",
+                "stopped",
+                "idle",
+                "pause",
+                "standby",
+            }:
+                self._is_on = False
+                return self._is_on
         if isinstance(status, int):
-            return status == 1
-        return bool(status)
+            # Android app treats 1/2 as active and 3 as standby.
+            if status in {1, 2}:
+                self._is_on = True
+            elif status in {0, 3}:
+                self._is_on = False
+            return self._is_on
+        return self._is_on
 
     async def async_turn_on(self, **kwargs: object) -> None:
         """Start rocking."""
@@ -63,6 +86,8 @@ class SleepytrollRockingSwitch(SleepytrollEntity, SwitchEntity):
             self.coordinator.client.address,
         )
         await self.coordinator.async_send_command(_command_to_str(command_play(True)))
+        self._is_on = True
+        self.async_write_ha_state()
 
     async def async_turn_off(self, **kwargs: object) -> None:
         """Pause rocking."""
@@ -71,3 +96,5 @@ class SleepytrollRockingSwitch(SleepytrollEntity, SwitchEntity):
             self.coordinator.client.address,
         )
         await self.coordinator.async_send_command(_command_to_str(command_play(False)))
+        self._is_on = False
+        self.async_write_ha_state()
