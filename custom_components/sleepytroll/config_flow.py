@@ -145,13 +145,17 @@ class SleepytrollConfigFlow(ConfigFlow, domain=DOMAIN):
 
         current_ids = self._async_current_ids(include_ignore=False)
         _LOGGER.debug("Scanning cached Bluetooth discoveries for Sleepytroll devices")
+        seen_discoveries = 0
+        matched_discoveries = 0
         for discovery in async_discovered_service_info(self.hass, connectable=True):
+            seen_discoveries += 1
             if not _looks_like_sleepytroll(discovery):
                 _LOGGER.debug(
                     "Skipping cached Bluetooth discovery; not Sleepytroll: %s",
                     _discovery_debug(discovery),
                 )
                 continue
+            matched_discoveries += 1
             address = _normalize_address(discovery.address)
             if address in current_ids or address in self._discovered_devices:
                 _LOGGER.debug(
@@ -168,6 +172,14 @@ class SleepytrollConfigFlow(ConfigFlow, domain=DOMAIN):
                 address,
                 _discovery_name(discovery),
             )
+        _LOGGER.debug(
+            "Bluetooth cache scan complete for Sleepytroll: seen=%s matched=%s "
+            "available=%s already_configured=%s",
+            seen_discoveries,
+            matched_discoveries,
+            len(self._discovered_devices),
+            len(current_ids),
+        )
 
         schema_fields: dict[Any, Any] = {}
         if self._discovered_devices:

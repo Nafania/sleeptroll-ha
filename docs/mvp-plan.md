@@ -143,6 +143,7 @@ No writes:
 - [x] Use unique ID from normalized Bluetooth address.
 - [x] Implement user step listing discovered Sleepytroll devices from `async_discovered_service_info`.
 - [x] Add manual address fallback when no discovery is visible.
+- [x] Add config flow translations and field descriptions for HACS/custom integration UI.
 - [x] Abort duplicate entries.
 - [x] Store address and name in config entry data.
 
