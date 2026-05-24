@@ -19,7 +19,6 @@ _LOGGER = logging.getLogger(__name__)
 
 MODE_CONTINUOUS: Final = "continuous"
 MODE_SENSOR: Final = "sensor"
-MODE_BABY_MONITOR: Final = "baby_monitor"
 SLEEP_SHORT: Final = "sleep_short"
 SLEEP_MEDIUM: Final = "sleep_medium"
 SLEEP_LONG: Final = "sleep_long"
@@ -37,7 +36,6 @@ class SleepytrollSelectOption:
 OPTIONS: Final = (
     SleepytrollSelectOption(option=MODE_CONTINUOUS, command_value="continuous"),
     SleepytrollSelectOption(option=MODE_SENSOR, command_value="sensor"),
-    SleepytrollSelectOption(option=MODE_BABY_MONITOR, command_value="baby_monitor"),
     SleepytrollSelectOption(
         option=SLEEP_SHORT, command_value="short", sleep_program=True
     ),

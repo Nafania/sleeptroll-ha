@@ -36,7 +36,6 @@
         "state": {
           "continuous": "Continuous",
           "sensor": "Sensor",
-          "baby_monitor": "Baby monitor",
           "sleep_short": "Sleep short",
           "sleep_medium": "Sleep medium",
           "sleep_long": "Sleep long"

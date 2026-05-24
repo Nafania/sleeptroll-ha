@@ -116,6 +116,38 @@ def test_light_value_is_not_exposed_as_duplicate_sensor() -> None:
     assert "light_sensitivity" in number_keys
 
 
+def test_mode_select_exposes_only_round_trippable_options() -> None:
+    tree = ast.parse((INTEGRATION_PATH / "select.py").read_text())
+    constants = {
+        node.target.id: node.value.value
+        for node in tree.body
+        if isinstance(node, ast.AnnAssign)
+        and isinstance(node.target, ast.Name)
+        and isinstance(node.value, ast.Constant)
+        and isinstance(node.value.value, str)
+    }
+
+    options = {
+        constants[keyword.value.id]
+        if isinstance(keyword.value, ast.Name)
+        else keyword.value.value
+        for node in ast.walk(tree)
+        if isinstance(node, ast.Call)
+        and getattr(node.func, "id", None) == "SleepytrollSelectOption"
+        for keyword in node.keywords
+        if keyword.arg == "option"
+        and isinstance(keyword.value, ast.Name | ast.Constant)
+    }
+
+    assert options == {
+        "continuous",
+        "sensor",
+        "sleep_short",
+        "sleep_medium",
+        "sleep_long",
+    }
+
+
 def test_registry_cleanup_removes_deprecated_light_value_sensor() -> None:
     source = (INTEGRATION_PATH / "__init__.py").read_text()
 

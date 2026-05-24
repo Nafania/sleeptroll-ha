@@ -300,13 +300,14 @@ def command_reset() -> bytes:
 def option_from_rocker_type(rocker_type: int | None) -> str | None:
     """Return the Home Assistant mode option for a device rocker type."""
 
+    # Packet 3 exposes the same run-mode values the Android UI highlights.
+    # Baby monitor has a command value, but no distinct observed state value.
     return {
         1: "continuous",
         2: "sensor",
-        3: "baby_monitor",
-        4: "sleep_short",
-        5: "sleep_medium",
-        6: "sleep_long",
+        3: "sleep_short",
+        4: "sleep_medium",
+        5: "sleep_long",
     }.get(rocker_type)
 
 
