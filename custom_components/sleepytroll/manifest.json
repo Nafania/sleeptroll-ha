@@ -1,0 +1,24 @@
+{
+  "domain": "sleepytroll",
+  "name": "Sleepytroll",
+  "after_dependencies": ["bluetooth"],
+  "bluetooth": [
+    {
+      "connectable": true,
+      "service_uuid": "55535343-fe7d-4ae5-8fa9-9fafd205e455"
+    },
+    {
+      "connectable": true,
+      "local_name": "Sleepytroll*"
+    }
+  ],
+  "codeowners": ["@Nafania"],
+  "config_flow": true,
+  "dependencies": ["bluetooth_adapters"],
+  "documentation": "https://github.com/Nafania/sleeptroll-ha",
+  "integration_type": "device",
+  "iot_class": "local_push",
+  "issue_tracker": "https://github.com/Nafania/sleeptroll-ha/issues",
+  "requirements": ["bleak-retry-connector==4.6.1"],
+  "version": "0.1.0"
+}

@@ -1,0 +1,119 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Add Sleepytroll",
+        "description": "Choose a discovered Sleepytroll device or enter its Bluetooth address.",
+        "data": {
+          "address": "Device",
+          "manual_address": "Bluetooth address"
+        }
+      },
+      "bluetooth_confirm": {
+        "title": "Add {name}",
+        "description": "Set up this Sleepytroll device?"
+      }
+    },
+    "error": {
+      "cannot_connect": "Cannot connect",
+      "no_devices_found": "No Sleepytroll devices found",
+      "unknown": "Unexpected error"
+    },
+    "abort": {
+      "already_configured": "Device is already configured",
+      "not_supported": "Device is not supported"
+    }
+  },
+  "entity": {
+    "switch": {
+      "rocking": {
+        "name": "Rocking"
+      }
+    },
+    "select": {
+      "mode": {
+        "name": "Mode",
+        "state": {
+          "continuous": "Continuous",
+          "sensor": "Sensor",
+          "baby_monitor": "Baby monitor",
+          "sleep_short": "Sleep short",
+          "sleep_medium": "Sleep medium",
+          "sleep_long": "Sleep long"
+        }
+      }
+    },
+    "number": {
+      "duration": {
+        "name": "Duration"
+      },
+      "rocking_intensity": {
+        "name": "Rocking intensity"
+      },
+      "sound_sensitivity": {
+        "name": "Sound sensitivity"
+      },
+      "movement_sensitivity": {
+        "name": "Movement sensitivity"
+      },
+      "light_sensitivity": {
+        "name": "Light sensitivity"
+      }
+    },
+    "button": {
+      "acknowledge": {
+        "name": "Acknowledge"
+      },
+      "reset": {
+        "name": "Reset"
+      }
+    },
+    "sensor": {
+      "battery": {
+        "name": "Battery"
+      },
+      "rocking_status": {
+        "name": "Rocking status"
+      },
+      "rocking_intensity": {
+        "name": "Rocking intensity"
+      },
+      "sound_sensitivity": {
+        "name": "Sound sensitivity"
+      },
+      "movement_sensitivity": {
+        "name": "Movement sensitivity"
+      },
+      "remaining_time": {
+        "name": "Remaining time"
+      },
+      "rocker_type": {
+        "name": "Rocker type"
+      },
+      "sleep_program_stage": {
+        "name": "Sleep program stage"
+      },
+      "microphone_status": {
+        "name": "Microphone status"
+      },
+      "battery_cycle_count": {
+        "name": "Battery cycle count"
+      },
+      "device_total_time": {
+        "name": "Device total time"
+      },
+      "motor_time": {
+        "name": "Motor time"
+      },
+      "firmware_version": {
+        "name": "Firmware version"
+      },
+      "serial_number": {
+        "name": "Serial number"
+      },
+      "light_value": {
+        "name": "Light value"
+      }
+    }
+  }
+}
