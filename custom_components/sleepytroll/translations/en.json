@@ -14,7 +14,7 @@
         }
       },
       "bluetooth_confirm": {
-        "title": "Add {name}",
+        "title": "Add Sleepytroll",
         "description": "Set up this Sleepytroll device through Home Assistant Bluetooth or a Bluetooth proxy?"
       }
     },
