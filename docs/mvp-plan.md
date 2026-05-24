@@ -186,7 +186,7 @@ No writes:
 
 - [x] Update README with HACS target HA version, Bluetooth proxy note, and no-OTA statement.
 - [x] Commit implementation.
-- [x] Push `main` to `Nafania/sleeptroll-ha`.
+- [x] Push `main` to `Nafania/sleepytroll-ha`.
 - [ ] Tag initial release after HA device test passes.
 
 ## Subagent Plan

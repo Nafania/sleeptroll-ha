@@ -22,11 +22,11 @@ intentionally out of scope. HACS metadata currently targets Home Assistant
 - UI config flow with Bluetooth discovery.
 - Manual Bluetooth address fallback.
 - Home Assistant Bluetooth proxy/repeater support through HA Bluetooth APIs.
-- Controls for start/pause, mode, sleep programs, runtime, rocking intensity,
-  sound sensitivity, movement sensitivity, light sensitivity, and acknowledge.
-- Diagnostic reset button, disabled by default.
+- Controls for rocking, mode, sleep programs, runtime, rocking intensity,
+  sound sensitivity, movement sensitivity, and light sensitivity.
+- Diagnostic sync state and reset buttons. Reset is disabled by default.
 - Sensors for battery, rocking status, remaining time, counters, firmware,
-  serial number, and light value when the device sends notifications.
+  and serial number.
 
 ## Bluetooth Notes
 
