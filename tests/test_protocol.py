@@ -45,6 +45,7 @@ command_reset = protocol.command_reset
 command_rocking_intensity = protocol.command_rocking_intensity
 command_sleep_program = protocol.command_sleep_program
 command_sound_sensitivity = protocol.command_sound_sensitivity
+option_from_rocker_type = protocol.option_from_rocker_type
 parse_notification = protocol.parse_notification
 state_from_packets = protocol.state_from_packets
 
@@ -268,3 +269,22 @@ def test_state_merge_keeps_existing_values_when_update_is_partial() -> None:
         rocking_intensity=80,
         light_value=50,
     )
+
+
+@pytest.mark.parametrize(
+    ("rocker_type", "expected"),
+    [
+        (1, "continuous"),
+        (2, "sensor"),
+        (3, "baby_monitor"),
+        (4, "sleep_short"),
+        (5, "sleep_medium"),
+        (6, "sleep_long"),
+        (None, None),
+        (99, None),
+    ],
+)
+def test_rocker_type_maps_to_home_assistant_mode_option(
+    rocker_type: int | None, expected: str | None
+) -> None:
+    assert option_from_rocker_type(rocker_type) == expected

@@ -30,11 +30,6 @@
     }
   },
   "entity": {
-    "switch": {
-      "rocking": {
-        "name": "Rocking"
-      }
-    },
     "select": {
       "mode": {
         "name": "Mode",
@@ -66,8 +61,14 @@
       }
     },
     "button": {
-      "acknowledge": {
-        "name": "Acknowledge"
+      "start_rocking": {
+        "name": "Start rocking"
+      },
+      "pause_rocking": {
+        "name": "Pause rocking"
+      },
+      "sync_state": {
+        "name": "Sync state"
       },
       "reset": {
         "name": "Reset"

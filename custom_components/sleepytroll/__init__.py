@@ -5,11 +5,12 @@ from __future__ import annotations
 import logging
 
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import CONF_ADDRESS, CONF_NAME
+from homeassistant.const import CONF_ADDRESS, CONF_NAME, Platform
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.exceptions import ConfigEntryNotReady
+from homeassistant.helpers import entity_registry as er
 
-from .const import DEFAULT_NAME, PLATFORMS
+from .const import DEFAULT_NAME, DOMAIN, PLATFORMS
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -26,6 +27,7 @@ async def async_setup_entry(
     address: str = entry.data[CONF_ADDRESS]
     name: str = entry.data.get(CONF_NAME, DEFAULT_NAME)
     _LOGGER.debug("Setting up Sleepytroll entry address=%s name=%s", address, name)
+    _async_remove_deprecated_entities(hass, address)
 
     client = SleepytrollBleClient(hass, address, name)
     coordinator = SleepytrollCoordinator(hass, entry, client)
@@ -78,6 +80,24 @@ async def async_setup_entry(
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     _LOGGER.debug("Sleepytroll setup complete address=%s", address)
     return True
+
+
+@callback
+def _async_remove_deprecated_entities(hass: HomeAssistant, address: str) -> None:
+    """Remove entities replaced by clearer controls."""
+    entity_registry = er.async_get(hass)
+    for platform, key in (
+        (Platform.SWITCH, "rocking"),
+        (Platform.BUTTON, "acknowledge"),
+    ):
+        entity_id = entity_registry.async_get_entity_id(
+            platform,
+            DOMAIN,
+            f"{address}_{key}",
+        )
+        if entity_id is not None:
+            _LOGGER.debug("Removing deprecated Sleepytroll entity %s", entity_id)
+            entity_registry.async_remove(entity_id)
 
 
 async def async_unload_entry(

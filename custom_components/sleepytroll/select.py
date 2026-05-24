@@ -13,7 +13,7 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from .coordinator import SleepytrollCoordinator
 from .entity import SleepytrollEntity
-from .protocol import command_mode, command_sleep_program
+from .protocol import command_mode, command_sleep_program, option_from_rocker_type
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -80,7 +80,12 @@ class SleepytrollModeSelect(SleepytrollEntity, SelectEntity):
 
     @property
     def current_option(self) -> str | None:
-        """Return last mode or sleep program selected from Home Assistant."""
+        """Return current device mode or last selected option."""
+        option = option_from_rocker_type(
+            getattr(self.coordinator.data, "rocker_type", None)
+        )
+        if option is not None:
+            return option
         return self._current_option
 
     async def async_select_option(self, option: str) -> None:

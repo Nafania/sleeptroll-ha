@@ -15,7 +15,7 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from .coordinator import SleepytrollCoordinator
 from .entity import SleepytrollEntity
-from .protocol import command_acknowledge, command_reset
+from .protocol import command_acknowledge, command_play, command_reset
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -31,13 +31,28 @@ class SleepytrollButtonDescription(ButtonEntityDescription):
 
 BUTTON_DESCRIPTIONS: Final = (
     SleepytrollButtonDescription(
-        key="acknowledge",
-        translation_key="acknowledge",
+        key="start_rocking",
+        translation_key="start_rocking",
+        icon="mdi:play",
+        command_builder=lambda: command_play(True),
+    ),
+    SleepytrollButtonDescription(
+        key="pause_rocking",
+        translation_key="pause_rocking",
+        icon="mdi:pause",
+        command_builder=lambda: command_play(False),
+    ),
+    SleepytrollButtonDescription(
+        key="sync_state",
+        translation_key="sync_state",
+        icon="mdi:sync",
+        entity_category=EntityCategory.DIAGNOSTIC,
         command_builder=command_acknowledge,
     ),
     SleepytrollButtonDescription(
         key="reset",
         translation_key="reset",
+        icon="mdi:restart-alert",
         entity_category=EntityCategory.DIAGNOSTIC,
         entity_registry_enabled_default=False,
         command_builder=command_reset,
@@ -88,6 +103,4 @@ class SleepytrollButton(SleepytrollEntity, ButtonEntity):
             self.entity_description.key,
             command,
         )
-        await self.coordinator.async_send_command(
-            command
-        )
+        await self.coordinator.async_send_command(command)

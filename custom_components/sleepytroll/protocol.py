@@ -297,6 +297,19 @@ def command_reset() -> bytes:
     return build_reset_command()
 
 
+def option_from_rocker_type(rocker_type: int | None) -> str | None:
+    """Return the Home Assistant mode option for a device rocker type."""
+
+    return {
+        1: "continuous",
+        2: "sensor",
+        3: "baby_monitor",
+        4: "sleep_short",
+        5: "sleep_medium",
+        6: "sleep_long",
+    }.get(rocker_type)
+
+
 def parse_notification(
     data: bytes | bytearray | memoryview | str,
 ) -> list[ParsedPacket]:

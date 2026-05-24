@@ -13,7 +13,13 @@ from homeassistant.core import HomeAssistant, callback
 from homeassistant.exceptions import ConfigEntryNotReady, HomeAssistantError
 
 from .const import NOTIFY_UUID, WRITE_UUID
-from .protocol import SleepytrollState, parse_notification, state_from_packets
+from .protocol import (
+    FirstPacket,
+    SleepytrollState,
+    command_acknowledge,
+    parse_notification,
+    state_from_packets,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -54,6 +60,8 @@ class SleepytrollBleClient:
         self._client: BleakClientWithServiceCache | None = None
         self._lock = asyncio.Lock()
         self._state_callback: Callable[[SleepytrollState], None] | None = None
+        self._identity_sync_sent = False
+        self._identity_sync_task: asyncio.Task[None] | None = None
 
     @callback
     def set_state_callback(
@@ -138,6 +146,7 @@ class SleepytrollBleClient:
                 self.address,
                 NOTIFY_UUID,
             )
+            self._identity_sync_sent = False
             await self._client.start_notify(NOTIFY_UUID, self._notification_handler)
             _LOGGER.debug("Sleepytroll notifications active address=%s", self.address)
         except BleakError as err:
@@ -153,6 +162,16 @@ class SleepytrollBleClient:
 
     async def async_disconnect(self) -> None:
         """Disconnect client."""
+        task = self._identity_sync_task
+        if (
+            task is not None
+            and not task.done()
+            and task is not asyncio.current_task()
+        ):
+            task.cancel()
+        self._identity_sync_task = None
+        self._identity_sync_sent = False
+
         client = self._client
         self._client = None
         if client and client.is_connected:
@@ -244,8 +263,57 @@ class SleepytrollBleClient:
             self.address,
             packets,
         )
+        if any(isinstance(packet, FirstPacket) for packet in packets):
+            self._schedule_identity_sync()
         state = state_from_packets(packets)
         _LOGGER.debug(
             "Sleepytroll parsed state address=%s state=%r", self.address, state
         )
         self._state_callback(state)
+
+    @callback
+    def _schedule_identity_sync(self) -> None:
+        """Schedule the post-identity state sync command used by the app."""
+        if self._identity_sync_sent:
+            _LOGGER.debug(
+                "Sleepytroll identity sync already sent address=%s", self.address
+            )
+            return
+
+        self._identity_sync_sent = True
+        _LOGGER.debug(
+            "Scheduling Sleepytroll identity sync address=%s delay=1.0s",
+            self.address,
+        )
+        task = self.hass.async_create_task(self._async_sync_after_identity())
+        self._identity_sync_task = task
+        task.add_done_callback(self._identity_sync_done)
+
+    @callback
+    def _identity_sync_done(self, task: asyncio.Task[None]) -> None:
+        """Handle identity sync completion."""
+        if self._identity_sync_task is task:
+            self._identity_sync_task = None
+        if task.cancelled():
+            _LOGGER.debug(
+                "Sleepytroll identity sync cancelled address=%s", self.address
+            )
+            return
+        if err := task.exception():
+            self._identity_sync_sent = False
+            _LOGGER.debug(
+                "Sleepytroll identity sync failed address=%s",
+                self.address,
+                exc_info=err,
+            )
+
+    async def _async_sync_after_identity(self) -> None:
+        """Send AT+OK after identity packet so the device emits full state."""
+        await asyncio.sleep(1.0)
+        command = command_acknowledge()
+        _LOGGER.debug(
+            "Sending Sleepytroll identity sync address=%s command=%r",
+            self.address,
+            command,
+        )
+        await self.async_write(command)
