@@ -7,7 +7,8 @@ from datetime import timedelta
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, callback
-from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
+from homeassistant.exceptions import ConfigEntryNotReady
+from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
 from .ble_client import SleepytrollBleClient
 from .const import DOMAIN
@@ -44,7 +45,10 @@ class SleepytrollCoordinator(DataUpdateCoordinator[SleepytrollState]):
             self.client.address,
             self._state,
         )
-        await self.client.async_connect()
+        try:
+            await self.client.async_connect()
+        except ConfigEntryNotReady as err:
+            raise UpdateFailed(str(err)) from err
         _LOGGER.debug(
             "Coordinator refresh complete address=%s state=%r",
             self.client.address,

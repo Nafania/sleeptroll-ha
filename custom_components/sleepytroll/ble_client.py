@@ -27,6 +27,22 @@ def _payload_for_log(payload: bytes) -> str:
     return f"text={text!r} hex={payload.hex()}"
 
 
+def _service_info_for_log(
+    service_info: bluetooth.BluetoothServiceInfoBleak | None,
+) -> dict[str, object | None] | None:
+    """Return stable Bluetooth service info fields for debug logs."""
+    if service_info is None:
+        return None
+    return {
+        "address": service_info.address,
+        "name": service_info.name,
+        "source": getattr(service_info, "source", None),
+        "rssi": getattr(service_info, "rssi", None),
+        "connectable": getattr(service_info, "connectable", None),
+        "service_uuids": service_info.service_uuids,
+    }
+
+
 class SleepytrollBleClient:
     """Proxy-aware BLE client for Sleepytroll."""
 
@@ -78,9 +94,25 @@ class SleepytrollBleClient:
             self.hass, self.address, connectable=True
         )
         if ble_device is None:
+            any_ble_device = bluetooth.async_ble_device_from_address(
+                self.hass, self.address, connectable=False
+            )
+            connectable_service_info = bluetooth.async_last_service_info(
+                self.hass, self.address, connectable=True
+            )
+            any_service_info = bluetooth.async_last_service_info(
+                self.hass, self.address, connectable=False
+            )
             _LOGGER.debug(
-                "No connectable Bluetooth adapter/proxy for Sleepytroll address=%s",
+                "No connectable Bluetooth adapter/proxy for Sleepytroll address=%s; "
+                "any_ble_device=%s connectable_service_info=%s "
+                "any_service_info=%s connectable_scanners=%s all_scanners=%s",
                 self.address,
+                any_ble_device,
+                _service_info_for_log(connectable_service_info),
+                _service_info_for_log(any_service_info),
+                bluetooth.async_scanner_count(self.hass, connectable=True),
+                bluetooth.async_scanner_count(self.hass, connectable=False),
             )
             raise ConfigEntryNotReady(
                 f"No connectable Bluetooth adapter or proxy can reach {self.address}"

@@ -20,6 +20,7 @@
     },
     "error": {
       "cannot_connect": "Cannot connect",
+      "not_connectable": "No connectable Bluetooth adapter or proxy can reach this address. Power on the device, close the Sleepytroll app, and make sure it is in range of Home Assistant or an active Bluetooth proxy.",
       "no_devices_found": "No Sleepytroll devices found",
       "unknown": "Unexpected error"
     },

@@ -8,7 +8,9 @@ from typing import Any
 import voluptuous as vol
 from homeassistant.components.bluetooth import (
     BluetoothServiceInfoBleak,
+    async_ble_device_from_address,
     async_discovered_service_info,
+    async_last_service_info,
 )
 from homeassistant.config_entries import ConfigFlow, ConfigFlowResult
 from homeassistant.const import CONF_ADDRESS, CONF_NAME
@@ -131,6 +133,25 @@ class SleepytrollConfigFlow(ConfigFlow, domain=DOMAIN):
             if not selected_address:
                 _LOGGER.debug("Sleepytroll user flow submitted without address")
                 errors["base"] = "no_devices_found"
+            elif async_ble_device_from_address(
+                self.hass, selected_address, connectable=True
+            ) is None:
+                _LOGGER.debug(
+                    "Sleepytroll user flow address has no connectable route: "
+                    "address=%s manual=%s last_service_info=%s",
+                    selected_address,
+                    bool(manual_address),
+                    _discovery_debug(
+                        service_info
+                    )
+                    if (
+                        service_info := async_last_service_info(
+                            self.hass, selected_address, connectable=False
+                        )
+                    )
+                    else None,
+                )
+                errors["base"] = "not_connectable"
             else:
                 await self.async_set_unique_id(selected_address)
                 self._abort_if_unique_id_configured()

@@ -56,13 +56,17 @@ async def async_setup_entry(
     )
 
     try:
+        _LOGGER.debug("Checking Sleepytroll connectability address=%s", address)
+        await client.async_connect()
         _LOGGER.debug("Running first Sleepytroll refresh address=%s", address)
         await coordinator.async_config_entry_first_refresh()
     except ConfigEntryNotReady:
         _LOGGER.debug("Sleepytroll first refresh not ready address=%s", address)
+        await client.async_disconnect()
         raise
     except Exception as err:
         _LOGGER.debug("Sleepytroll first refresh failed address=%s", address)
+        await client.async_disconnect()
         raise ConfigEntryNotReady(f"Could not connect to {name}") from err
 
     entry.runtime_data = coordinator
