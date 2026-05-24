@@ -4,9 +4,9 @@
 
 **Goal:** Build a HACS-compatible Home Assistant custom integration for Sleepytroll Baby Rocker Gen 2 with UI config flow, Bluetooth discovery, Bluetooth proxy support, and all non-OTA app controls.
 
-**Architecture:** A pure `protocol.py` owns command formatting and notification parsing. A BLE client layer resolves devices through Home Assistant Bluetooth APIs and connects with `bleak-retry-connector` so ESPHome Bluetooth proxies and other HA Bluetooth adapters work. Entity platforms expose the app controls as HA switch/select/number/button/sensor entities backed by one coordinator/client.
+**Architecture:** A pure `protocol.py` owns command formatting and notification parsing. A BLE client layer resolves devices through Home Assistant Bluetooth APIs and connects with the Home Assistant Bluetooth stack's `bleak-retry-connector` so ESPHome Bluetooth proxies and other HA Bluetooth adapters work. Entity platforms expose the app controls as HA switch/select/number/button/sensor entities backed by one coordinator/client.
 
-**Tech stack:** Home Assistant custom integration, HA Bluetooth API, `bleak-retry-connector`, Python 3.13-compatible code, pytest for protocol tests, HACS repository layout.
+**Tech stack:** Home Assistant custom integration, HA Bluetooth API, Home Assistant-provided `bleak-retry-connector`, Python 3.13+-compatible code, pytest for protocol tests, HACS repository layout.
 
 ---
 
@@ -162,6 +162,7 @@ No writes:
 - [x] Run Python compile check for custom component.
 - [x] Run Home Assistant 2025.6 import smoke test for integration modules.
 - [x] Add debug logs for discovery, BLE proxy resolution, commands, notifications, and state merge.
+- [x] Avoid custom `bleak-retry-connector` manifest pin; use Home Assistant Bluetooth stack version.
 - [x] Run `hacs/action` and `hassfest` via GitHub Actions after push.
 - [ ] Install via HACS custom repository in Home Assistant.
 - [ ] Add integration through UI config flow.

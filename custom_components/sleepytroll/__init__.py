@@ -4,25 +4,25 @@ from __future__ import annotations
 
 import logging
 
-from homeassistant.components import bluetooth
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_ADDRESS, CONF_NAME
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.exceptions import ConfigEntryNotReady
 
-from .ble_client import SleepytrollBleClient
 from .const import DEFAULT_NAME, PLATFORMS
-from .coordinator import SleepytrollCoordinator
 
 _LOGGER = logging.getLogger(__name__)
 
-type SleepytrollConfigEntry = ConfigEntry[SleepytrollCoordinator]
-
 
 async def async_setup_entry(
-    hass: HomeAssistant, entry: SleepytrollConfigEntry
+    hass: HomeAssistant, entry: ConfigEntry
 ) -> bool:
     """Set up Sleepytroll from a config entry."""
+    from homeassistant.components import bluetooth
+
+    from .ble_client import SleepytrollBleClient
+    from .coordinator import SleepytrollCoordinator
+
     address: str = entry.data[CONF_ADDRESS]
     name: str = entry.data.get(CONF_NAME, DEFAULT_NAME)
     _LOGGER.debug("Setting up Sleepytroll entry address=%s name=%s", address, name)
@@ -77,7 +77,7 @@ async def async_setup_entry(
 
 
 async def async_unload_entry(
-    hass: HomeAssistant, entry: SleepytrollConfigEntry
+    hass: HomeAssistant, entry: ConfigEntry
 ) -> bool:
     """Unload a config entry."""
     address: str = entry.data[CONF_ADDRESS]

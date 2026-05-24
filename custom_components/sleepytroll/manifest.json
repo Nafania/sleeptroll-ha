@@ -19,6 +19,5 @@
   "integration_type": "device",
   "iot_class": "local_push",
   "issue_tracker": "https://github.com/Nafania/sleeptroll-ha/issues",
-  "requirements": ["bleak-retry-connector==4.6.1"],
   "version": "0.1.0"
 }
