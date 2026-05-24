@@ -8,7 +8,11 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from typing import Final
 
-from homeassistant.components.number import NumberEntity, NumberMode
+from homeassistant.components.number import (
+    NumberEntity,
+    NumberEntityDescription,
+    NumberMode,
+)
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import PERCENTAGE, UnitOfTime
 from homeassistant.core import HomeAssistant
@@ -30,7 +34,7 @@ CommandBuilder = Callable[[int], str | bytes]
 
 
 @dataclass(frozen=True, kw_only=True)
-class SleepytrollNumberDescription:
+class SleepytrollNumberDescription(NumberEntityDescription):
     """Sleepytroll number entity metadata."""
 
     key: str
