@@ -115,9 +115,6 @@
       },
       "serial_number": {
         "name": "Serial number"
-      },
-      "light_value": {
-        "name": "Light value"
       }
     }
   }

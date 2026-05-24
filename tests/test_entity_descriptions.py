@@ -1,4 +1,5 @@
 import ast
+import json
 from pathlib import Path
 
 import pytest
@@ -88,3 +89,70 @@ def test_rocking_switch_keeps_local_state_until_ble_status_arrives() -> None:
     assert "self._is_on = True" in source
     assert "self._is_on = False" in source
     assert "self.async_write_ha_state()" in source
+
+
+def test_light_value_is_not_exposed_as_duplicate_sensor() -> None:
+    sensor_tree = ast.parse((INTEGRATION_PATH / "sensor.py").read_text())
+    sensor_keys = {
+        keyword.value.value
+        for node in ast.walk(sensor_tree)
+        if isinstance(node, ast.Call)
+        and getattr(node.func, "id", None) == "SleepytrollSensorDescription"
+        for keyword in node.keywords
+        if keyword.arg == "key" and isinstance(keyword.value, ast.Constant)
+    }
+
+    number_tree = ast.parse((INTEGRATION_PATH / "number.py").read_text())
+    number_keys = {
+        keyword.value.value
+        for node in ast.walk(number_tree)
+        if isinstance(node, ast.Call)
+        and getattr(node.func, "id", None) == "SleepytrollNumberDescription"
+        for keyword in node.keywords
+        if keyword.arg == "key" and isinstance(keyword.value, ast.Constant)
+    }
+
+    assert "light_value" not in sensor_keys
+    assert "light_sensitivity" in number_keys
+
+
+def test_registry_cleanup_removes_deprecated_light_value_sensor() -> None:
+    source = (INTEGRATION_PATH / "__init__.py").read_text()
+
+    assert '(Platform.SENSOR, "light_value")' in source
+
+
+def test_numeric_sleepytroll_entity_ids_are_repaired_to_expected_keys() -> None:
+    source = (INTEGRATION_PATH / "__init__.py").read_text()
+
+    assert "_legacy_numeric_entity_id" in source
+    assert "object_id.rsplit(\"_\", 1)" in source
+    assert 'prefix.endswith(f"_{key}")' in source
+    assert "new_entity_id=" in source
+
+
+@pytest.mark.parametrize(
+    ("domain", "module_name", "description_class"),
+    [
+        ("button", "button", "SleepytrollButtonDescription"),
+        ("number", "number", "SleepytrollNumberDescription"),
+        ("sensor", "sensor", "SleepytrollSensorDescription"),
+    ],
+)
+def test_entity_description_keys_have_translations(
+    domain: str, module_name: str, description_class: str
+) -> None:
+    strings = json.loads((INTEGRATION_PATH / "strings.json").read_text())
+    tree = ast.parse((INTEGRATION_PATH / f"{module_name}.py").read_text())
+    keys = {
+        keyword.value.value
+        for node in ast.walk(tree)
+        if isinstance(node, ast.Call)
+        and getattr(node.func, "id", None) == description_class
+        for keyword in node.keywords
+        if keyword.arg == "key" and isinstance(keyword.value, ast.Constant)
+    }
+
+    translated_keys = set(strings["entity"][domain])
+
+    assert keys <= translated_keys

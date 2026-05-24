@@ -124,13 +124,6 @@ SENSOR_DESCRIPTIONS: Final = (
         state_attr="serial_number",
         entity_category=EntityCategory.DIAGNOSTIC,
     ),
-    SleepytrollSensorDescription(
-        key="light_value",
-        translation_key="light_value",
-        state_attr="light_value",
-        native_unit_of_measurement=PERCENTAGE,
-        state_class=SensorStateClass.MEASUREMENT,
-    ),
 )
 
 
