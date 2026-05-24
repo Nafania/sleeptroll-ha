@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+import logging
 from collections.abc import Callable
 from dataclasses import dataclass
 from typing import Final
@@ -22,6 +23,8 @@ from .protocol import (
     command_rocking_intensity,
     command_sound_sensitivity,
 )
+
+_LOGGER = logging.getLogger(__name__)
 
 CommandBuilder = Callable[[int], str | bytes]
 
@@ -144,8 +147,20 @@ class SleepytrollNumber(SleepytrollEntity, NumberEntity):
         """Set a numeric Sleepytroll setting."""
         int_value = int(value)
         command = _command_to_str(self.entity_description.command_builder(int_value))
+        _LOGGER.debug(
+            "Setting Sleepytroll number address=%s key=%s value=%s command=%r",
+            self.coordinator.client.address,
+            self.entity_description.key,
+            int_value,
+            command,
+        )
         await self.coordinator.async_send_command(command)
         if self.entity_description.key == "light_sensitivity" and int_value == 0:
+            _LOGGER.debug(
+                "Repeating Sleepytroll light_sensitivity=0 command after 200 ms "
+                "address=%s",
+                self.coordinator.client.address,
+            )
             await asyncio.sleep(0.2)
             await self.coordinator.async_send_command(command)
         self._native_value = float(value)

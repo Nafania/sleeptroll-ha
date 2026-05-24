@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 from collections.abc import Callable
 from dataclasses import dataclass
 from typing import Final
@@ -15,6 +16,8 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from .coordinator import SleepytrollCoordinator
 from .entity import SleepytrollEntity
 from .protocol import command_acknowledge, command_reset
+
+_LOGGER = logging.getLogger(__name__)
 
 CommandBuilder = Callable[[], str | bytes]
 
@@ -78,6 +81,13 @@ class SleepytrollButton(SleepytrollEntity, ButtonEntity):
 
     async def async_press(self) -> None:
         """Press the button."""
+        command = _command_to_str(self.entity_description.command_builder())
+        _LOGGER.debug(
+            "Pressing Sleepytroll button address=%s key=%s command=%r",
+            self.coordinator.client.address,
+            self.entity_description.key,
+            command,
+        )
         await self.coordinator.async_send_command(
-            _command_to_str(self.entity_description.command_builder())
+            command
         )

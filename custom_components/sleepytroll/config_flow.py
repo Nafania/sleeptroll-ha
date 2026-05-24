@@ -37,6 +37,18 @@ def _looks_like_sleepytroll(discovery_info: BluetoothServiceInfoBleak) -> bool:
     )
 
 
+def _discovery_debug(discovery_info: BluetoothServiceInfoBleak) -> dict[str, Any]:
+    """Return stable discovery fields for debug logs."""
+    return {
+        "address": discovery_info.address,
+        "name": discovery_info.name,
+        "source": getattr(discovery_info, "source", None),
+        "rssi": getattr(discovery_info, "rssi", None),
+        "connectable": getattr(discovery_info, "connectable", None),
+        "service_uuids": discovery_info.service_uuids,
+    }
+
+
 class SleepytrollConfigFlow(ConfigFlow, domain=DOMAIN):
     """Handle a config flow for Sleepytroll."""
 
@@ -51,11 +63,22 @@ class SleepytrollConfigFlow(ConfigFlow, domain=DOMAIN):
         self, discovery_info: BluetoothServiceInfoBleak
     ) -> ConfigFlowResult:
         """Handle Bluetooth discovery."""
-        _LOGGER.debug("Discovered Sleepytroll candidate: %s", discovery_info.as_dict())
+        _LOGGER.debug(
+            "Bluetooth discovery candidate: %s", _discovery_debug(discovery_info)
+        )
         if not _looks_like_sleepytroll(discovery_info):
+            _LOGGER.debug(
+                "Bluetooth discovery rejected; not Sleepytroll: %s",
+                _discovery_debug(discovery_info),
+            )
             return self.async_abort(reason="not_supported")
 
         address = _normalize_address(discovery_info.address)
+        _LOGGER.debug(
+            "Bluetooth discovery matched Sleepytroll address=%s name=%s",
+            address,
+            _discovery_name(discovery_info),
+        )
         await self.async_set_unique_id(address)
         self._abort_if_unique_id_configured()
         self._discovery_info = discovery_info
@@ -71,6 +94,12 @@ class SleepytrollConfigFlow(ConfigFlow, domain=DOMAIN):
         if user_input is not None:
             assert self._discovery_info is not None
             address = _normalize_address(self._discovery_info.address)
+            _LOGGER.debug(
+                "Creating Sleepytroll entry from Bluetooth discovery address=%s "
+                "name=%s",
+                address,
+                _discovery_name(self._discovery_info),
+            )
             return self.async_create_entry(
                 title=_discovery_name(self._discovery_info),
                 data={
@@ -88,10 +117,12 @@ class SleepytrollConfigFlow(ConfigFlow, domain=DOMAIN):
         errors: dict[str, str] = {}
 
         if user_input is not None:
+            _LOGGER.debug("Sleepytroll user flow input received: %s", user_input)
             address = (user_input.get(CONF_ADDRESS) or "").strip()
             manual_address = (user_input.get(CONF_MANUAL_ADDRESS) or "").strip()
             selected_address = _normalize_address(manual_address or address)
             if not selected_address:
+                _LOGGER.debug("Sleepytroll user flow submitted without address")
                 errors["base"] = "no_devices_found"
             else:
                 await self.async_set_unique_id(selected_address)
@@ -99,19 +130,44 @@ class SleepytrollConfigFlow(ConfigFlow, domain=DOMAIN):
 
                 discovery = self._discovered_devices.get(selected_address)
                 name = _discovery_name(discovery) if discovery else DEFAULT_NAME
+                _LOGGER.debug(
+                    "Creating Sleepytroll entry from user flow address=%s name=%s "
+                    "manual=%s discovered=%s",
+                    selected_address,
+                    name,
+                    bool(manual_address),
+                    discovery is not None,
+                )
                 return self.async_create_entry(
                     title=name,
                     data={CONF_ADDRESS: selected_address, CONF_NAME: name},
                 )
 
         current_ids = self._async_current_ids(include_ignore=False)
+        _LOGGER.debug("Scanning cached Bluetooth discoveries for Sleepytroll devices")
         for discovery in async_discovered_service_info(self.hass, connectable=True):
             if not _looks_like_sleepytroll(discovery):
+                _LOGGER.debug(
+                    "Skipping cached Bluetooth discovery; not Sleepytroll: %s",
+                    _discovery_debug(discovery),
+                )
                 continue
             address = _normalize_address(discovery.address)
             if address in current_ids or address in self._discovered_devices:
+                _LOGGER.debug(
+                    "Skipping cached Sleepytroll discovery address=%s duplicate=%s "
+                    "already_configured=%s",
+                    address,
+                    address in self._discovered_devices,
+                    address in current_ids,
+                )
                 continue
             self._discovered_devices[address] = discovery
+            _LOGGER.debug(
+                "Cached Sleepytroll discovery address=%s name=%s",
+                address,
+                _discovery_name(discovery),
+            )
 
         schema_fields: dict[Any, Any] = {}
         if self._discovered_devices:

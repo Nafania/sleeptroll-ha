@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import logging
+
 from homeassistant.components.switch import SwitchEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
@@ -10,6 +12,8 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from .coordinator import SleepytrollCoordinator
 from .entity import SleepytrollEntity
 from .protocol import command_play
+
+_LOGGER = logging.getLogger(__name__)
 
 
 def _command_to_str(command: str | bytes) -> str:
@@ -54,8 +58,16 @@ class SleepytrollRockingSwitch(SleepytrollEntity, SwitchEntity):
 
     async def async_turn_on(self, **kwargs: object) -> None:
         """Start rocking."""
+        _LOGGER.debug(
+            "Turning Sleepytroll rocking on address=%s",
+            self.coordinator.client.address,
+        )
         await self.coordinator.async_send_command(_command_to_str(command_play(True)))
 
     async def async_turn_off(self, **kwargs: object) -> None:
         """Pause rocking."""
+        _LOGGER.debug(
+            "Turning Sleepytroll rocking off address=%s",
+            self.coordinator.client.address,
+        )
         await self.coordinator.async_send_command(_command_to_str(command_play(False)))

@@ -34,6 +34,24 @@ The integration resolves devices through Home Assistant Bluetooth, using
 connectable adapters/proxies. Do not pair the rocker with the host OS; keep it
 available for Home Assistant to connect over BLE.
 
+## Debug Logging
+
+Add this to `configuration.yaml`, restart Home Assistant, then reproduce the
+issue:
+
+```yaml
+logger:
+  default: info
+  logs:
+    custom_components.sleepytroll: debug
+    bleak_retry_connector: debug
+    homeassistant.components.bluetooth: debug
+```
+
+The Sleepytroll logger records Bluetooth discovery, config flow decisions,
+connectable adapter/proxy resolution, connect/disconnect, command writes, raw
+notifications, parsed packets, and merged coordinator state.
+
 ## Development
 
 ```bash

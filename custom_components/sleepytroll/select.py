@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 from dataclasses import dataclass
 from typing import Final
 
@@ -13,6 +14,8 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from .coordinator import SleepytrollCoordinator
 from .entity import SleepytrollEntity
 from .protocol import command_mode, command_sleep_program
+
+_LOGGER = logging.getLogger(__name__)
 
 MODE_CONTINUOUS: Final = "continuous"
 MODE_SENSOR: Final = "sensor"
@@ -87,6 +90,12 @@ class SleepytrollModeSelect(SleepytrollEntity, SelectEntity):
             command = command_sleep_program(description.command_value)
         else:
             command = command_mode(description.command_value)
+        _LOGGER.debug(
+            "Selecting Sleepytroll option address=%s option=%s command=%r",
+            self.coordinator.client.address,
+            option,
+            command,
+        )
         await self.coordinator.async_send_command(_command_to_str(command))
         self._current_option = option
         self.async_write_ha_state()
