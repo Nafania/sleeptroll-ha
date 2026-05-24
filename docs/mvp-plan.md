@@ -140,6 +140,7 @@ No writes:
 ### Task 4: Config Flow
 
 - [x] Implement `async_step_bluetooth` using `BluetoothServiceInfoBleak`.
+- [x] Match Sleepytroll advertising UUID `00001315-0000-1000-8000-00805f9b34fb` discovered from Android scan filter.
 - [x] Use unique ID from normalized Bluetooth address.
 - [x] Implement user step listing discovered Sleepytroll devices from `async_discovered_service_info`.
 - [x] Add manual address fallback when no discovery is visible.

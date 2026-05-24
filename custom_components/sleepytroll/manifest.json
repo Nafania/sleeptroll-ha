@@ -5,6 +5,10 @@
   "bluetooth": [
     {
       "connectable": true,
+      "service_uuid": "00001315-0000-1000-8000-00805f9b34fb"
+    },
+    {
+      "connectable": true,
       "service_uuid": "55535343-fe7d-4ae5-8fa9-9fafd205e455"
     },
     {
@@ -19,5 +23,5 @@
   "integration_type": "device",
   "iot_class": "local_push",
   "issue_tracker": "https://github.com/Nafania/sleeptroll-ha/issues",
-  "version": "0.1.2"
+  "version": "0.1.3"
 }

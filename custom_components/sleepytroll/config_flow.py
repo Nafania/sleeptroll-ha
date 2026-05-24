@@ -13,7 +13,13 @@ from homeassistant.components.bluetooth import (
 from homeassistant.config_entries import ConfigFlow, ConfigFlowResult
 from homeassistant.const import CONF_ADDRESS, CONF_NAME
 
-from .const import CONF_MANUAL_ADDRESS, DEFAULT_NAME, DOMAIN, SERVICE_UUID
+from .const import (
+    ADVERTISEMENT_SERVICE_UUID,
+    CONF_MANUAL_ADDRESS,
+    DEFAULT_NAME,
+    DOMAIN,
+    SERVICE_UUID,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -32,7 +38,8 @@ def _looks_like_sleepytroll(discovery_info: BluetoothServiceInfoBleak) -> bool:
     """Return true if discovery data is likely a Sleepytroll."""
     service_uuids = {uuid.lower() for uuid in discovery_info.service_uuids}
     return (
-        SERVICE_UUID in service_uuids
+        ADVERTISEMENT_SERVICE_UUID in service_uuids
+        or SERVICE_UUID in service_uuids
         or _discovery_name(discovery_info).lower().startswith("sleepytroll")
     )
 
